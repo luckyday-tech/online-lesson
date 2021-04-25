@@ -1,0 +1,27 @@
+.ol__{
+    .ol__header{
+        position: relative;
+        background-color: #F1FAFC;
+        display: flex;
+        height: 49px;
+        margin-bottom: 15px;
+        .ol__logo{
+            @include flex-center-v;
+            height:49px;
+            width:393px;
+        }
+        .ol__avatar-title{
+            @include font-avatar-title;
+            @include flex-center-v;
+            padding-left: 7px;
+        }
+        .ol__actions{
+            @include absolute-right;
+            display: flex;
+            div{
+                margin-left: 11px;
+            }
+        }
+    }
+    
+}

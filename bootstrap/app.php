@@ -11,6 +11,10 @@
 |
 */
 
+require_once __DIR__ . '/commonfunc.php';
+require_once __DIR__ . '/master_data.php';
+
+
 $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );

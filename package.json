@@ -22,11 +22,13 @@
         "sass-loader": "^8.0.0"
     },
     "dependencies": {
+        "@fortawesome/fontawesome-free": "^5.15.3",
         "add": "^2.0.6",
         "bootstrap-notify": "^3.1.3",
         "font-awesome": "^4.7.0",
         "or": "^0.2.0",
         "owl.carousel": "^2.3.4",
+        "skyway-js": "^4.4.1",
         "yarn": "^1.22.10"
     }
 }

@@ -17,3 +17,84 @@ $yellow: #ffed4a;
 $green: #38c172;
 $teal: #4dc0b5;
 $cyan: #6cb2eb;
+
+
+$fs-normal: 400;
+$fs-bold: 700;
+
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin flex-center-v {
+    display: flex;
+    align-items: center;
+}
+
+@mixin absolute-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@mixin absolute-center-x {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+@mixin absolute-center-y {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+@mixin absolute-left {
+    position: absolute;
+    left: 0;
+}
+
+@mixin absolute-right {
+    position: absolute;
+    right: 0;
+}
+
+@mixin absolute-top {
+    position: absolute;
+    top: 0;
+}
+
+@mixin absolute-bottom {
+    position: absolute;
+    bottom: 0;
+}
+
+@mixin font-avatar-title {
+    color: #000000;
+    font-size: 14px;
+    line-height: 18px;
+    letter-spacing: 0px;
+    font-weight: $fs-normal;
+    font-family: "Noto Sans JP", sans-serif;
+}
+
+@mixin font-chat-time {
+    color: #000000;
+    font-size: 11px;
+    line-height: 13px;
+    letter-spacing: 0px;
+    font-weight: $fs-normal;
+    font-family: "Noto Sans JP", sans-serif;
+}
+
+@mixin font-chat-text {
+    color: #000000;
+    font-size: 13px;
+    line-height: 20px;
+    letter-spacing: 0px;
+    font-weight: $fs-normal;
+    font-family: "Noto Sans JP", sans-serif;
+}

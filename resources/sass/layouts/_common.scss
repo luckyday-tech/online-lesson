@@ -1,0 +1,211 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.body {
+    @include flex-center;
+    font-family: "Noto Sans JP", sans-serif;
+    position: relative;
+}
+
+.ol__ {
+    width: 1280px;
+    border: 15px solid #f1fafc;
+    background-color: #f1fafc;
+    border-radius: 15px;
+    margin: 0 auto;
+
+    .ol__avatar {
+        img {
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    }
+
+    .ol__avatar-size-49 {
+        width: 49px;
+        height: 49px;
+    }
+
+    .ol__avatar-size-40 {
+        width: 40px;
+        height: 40px;
+    }
+
+    .ol__btn {
+        background-color: #171f29;
+        &.ol__btn-action {
+            position: relative;
+            width: 38.8px;
+            height: 38.8px;
+            border: none;
+            border-radius: 50%;
+            color: #ffffff;
+            i {
+                @include absolute-center;
+            }
+        }
+        &.ol__btn-black {
+            background-color: #171f29;
+        }
+        &.ol__btn-pink {
+            background-color: #df5695;
+        }
+        &.ol__btn-blue {
+            background-color: #65c4f2;
+        }
+        transition: all 0.5s;
+    }
+
+    .ol__btn:hover {
+        transition: all 0.5s;
+        opacity: 0.5;
+        cursor: pointer;
+        border-radius: 50% 50%;
+    }
+
+    .ol__main {
+        display: flex;
+        height: calc(100vh - 94px);
+        .ol__side {
+            width: calc(393px + 15px);
+            margin-right: 15px;
+            .ol__host_video {
+                width: 100%;
+                height: 296px;
+                background-color: #444444;
+                border-radius: 15px;
+                margin-bottom: 15px;
+            }
+            .ol__chat {
+                position: relative;
+                width: 100%;
+                height: calc(100vh - 94px - 296px - 15px);
+                background-color: #fdf2f3;
+                border-radius: 15px;
+                padding: 13px 10px 13px 13px;
+                .ol__chart-text-panel {
+                    overflow: auto;
+                    height: calc(100vh - 94px - 296px - 15px - 15px - 56px - 11px - 13px);
+                    padding-right: 10px;
+                    .ol__chat-partner {
+                        display: flex;
+                        justify-content: flex-start;
+                        margin-bottom: 23px;
+                        .ol__chat-content {
+                            margin-left: 9px;
+                            .ol__chat-time {
+                                @include font-chat-time;
+                            }
+                            .ol__chat-text {
+                                @include font-chat-text;
+                                width: 100%;
+                                border: 15px solid #f1fafc;
+                                border-radius: 15px;
+                                border-top-left-radius: 0px;
+                                background-color: #f1fafc;
+                            }
+                        }
+                    }
+
+                    .ol__chat-self {
+                        margin-bottom: 23px;
+                        .ol__chat-content {
+                            .ol__chat-time {
+                                @include font-chat-time;
+                                text-align:right;
+                            }
+                            .ol__chat-text {
+                                @include font-chat-text;
+                                width: 100%;
+                                border: 15px solid #f1fafc;
+                                border-radius: 15px;
+                                border-bottom-right-radius: 0px;
+                                background-color: #f1fafc;
+                            }
+                        }
+                    }
+                }
+                .ol__chart-text-panel::-webkit-scrollbar {
+                    width: 3px;
+                }
+                .ol__chart-text-panel::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                }
+                /* Handle */
+                .ol__chart-text-panel::-webkit-scrollbar-thumb {
+                    background: #888;
+                }
+
+                /* Handle on hover */
+                .ol__chart-text-panel::-webkit-scrollbar-thumb:hover {
+                    background: #555;
+                }
+
+                .ol__chat-control-panel {
+                    position: absolute;
+                    display: flex;
+                    width: calc(100% - 24px);
+                    height: 56px;
+                    border-radius: 28px;
+                    background-color: #ffffff;
+                    border: none;
+                    bottom: 11px;
+                    left: 13px;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding-left: 12px;
+                    padding-right: 13px;
+                    .ol__chat-text {
+                        display: flex;
+                        align-items: center;
+                        width: 100%;
+                        i {
+                            color: #cccccc;
+                            font-size: 24px;
+                        }
+                        input {
+                            height: 26px;
+                            width: 100%;
+                            padding: 0 5px;
+                            border: none;
+                        }
+                        input:focus {
+                            outline: none;
+                        }
+                    }
+                }
+            }
+        }
+
+        .ol__body {
+            position: relative;
+            width: calc(100% - 393px - 15px);
+            min-height: 655px;
+
+            .ol__board {
+                border-radius: 15px;
+                height: calc(100vh - 49px - 49px - 189px);
+                min-height: 466px;
+                img {
+                    object-fit: cover;
+                    border-radius: 15px;
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+            .ol__student-list {
+                width: 100%;
+                position: absolute;
+                bottom: 0px;
+                .ol__student-video {
+                    width: 203px;
+                    height: 152px;
+                    border: 1px solid #ffffff;
+                    background-color: #444444;
+                }
+            }
+        }
+    }
+}
