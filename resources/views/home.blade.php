@@ -189,6 +189,8 @@ use App\Models\VideoChatManager;
                         host_video.playsInline = true;
                         host_video.setAttribute('data-peer-id', stream.peerId);
                         host_video.play().catch(console.error);
+                    } else {
+                        $('#js-student-streams').trigger('add.owl.carousel', ['<video id="' + stream.peerId + '"></video>']).trigger('refresh.owl.carousel');
                     }
                 }
             });
