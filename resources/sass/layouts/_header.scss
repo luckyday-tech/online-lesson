@@ -18,7 +18,7 @@
         .ol__actions{
             @include absolute-right;
             display: flex;
-            div{
+            div,a{
                 margin-left: 11px;
             }
         }

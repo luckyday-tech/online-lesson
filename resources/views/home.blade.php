@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+<?php 
+use App\Models\VideoChatManager;
+?>
 @section('content')
 <main class="ol__main">
     <div class="ol__side">
@@ -150,7 +153,7 @@
                 debug: 3,
             }));
         } else {
-            peer = (window.peer = new Peer({
+            peer = (window.peer = new Peer("{{VideoChatManager::generatePeerId()}}", {
                 key: window.__SKYWAY_KEY__,
                 debug: 3,
             }));
@@ -164,11 +167,15 @@
             });
 
             room.once('open', () => {
-                console.log('=== You joined ===\n');
+                ol_notify("接続に成功しました。");
             });
 
             room.on('peerJoin', peerId => {
-                console.log(`=== ${peerId} joined ===\n`);
+                if (peerId == HOST_ID) {
+                    ol_notify_from_partner(peerId + "さん", "接続しました。" , "../images/avatar-teacher.png");
+                } else {
+                    ol_notify_from_partner(peerId + "さん", "接続しました。" , "../images/avatar-teacher.png");
+                }
             });
 
             room.on('stream', async stream => {
@@ -190,6 +197,13 @@
                 const student_video = student_videos.querySelector(
                     `[data-peer-id="${peerId}"]`
                 );
+
+                if (student_video == null)
+                    return;
+                
+                if (student_video.srcObject == null)
+                    return;
+
                 student_video.srcObject.getTracks().forEach(track => track.stop());
                 student_video.srcObject = null;
 
@@ -210,12 +224,16 @@
             room.on('data', ({ data, src }) => {
                 if (src == HOST_ID) {
                     addChatByPartner(data, src, "../images/avatar-teacher.png");
+                    ol_notify_from_partner(src + "さん", data , "../images/avatar-teacher.png");
                 } else {
                     addChatByPartner(data, src, "../images/avatar-student.png");
+                    ol_notify_from_partner(src + "さん", data , "../images/avatar-student.png");
                 }
                 $(".ol__chart-text-panel").scrollTop($(".ol__chart-text-panel").prop("scrollHeight"));
 
             });
+
+
 
             $(".js-btn-send-message").on("click", function(){
                 room.send($("#txt_send_message").val());
@@ -227,11 +245,18 @@
 
             $("#txt_send_message").keypress(function(e) { 
                 if (e.keyCode == 13){
-                    $(".js-btn-send-message").click()
+                    $(".js-btn-send-message").click();
                 }    
             });
 
         });
+        peer.on('error', error => {
+            //if (error.type != "peer-unavailable") {
+            //    console.log('error: type=' + error.type + ", message=" + error.message);
+            //}
+            ol_notify("通信にエラーが発生しました。", "danger");
+        });
+
     })();
 
 
