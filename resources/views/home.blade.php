@@ -1,12 +1,13 @@
 @extends('layouts.app')
 
-<?php 
+<?php
+
 use App\Models\VideoChatManager;
 ?>
 @section('content')
 <main class="ol__main">
     <div class="ol__side">
-        <video id="js-host-stream" class="ol__host_video"></video>
+        <video id="js-host-stream" controls class="ol__host_video"></video>
         <div class="ol__chat">
             <div class="ol__chart-text-panel">
                 <!--
@@ -38,7 +39,8 @@ use App\Models\VideoChatManager;
     </div>
     <div class="ol__body">
         <div class="ol__board">
-            <img src="../images/board.png" />
+            <video id="js-host-screen" controls class="ol__host_screen"></video>
+
         </div>
         <div class="ol__student-list">
             <div id="js-student-streams" class="owl-carousel owl-theme">
@@ -53,8 +55,11 @@ use App\Models\VideoChatManager;
 <script>
     var stream_list = [];
     const IS_HOST = "{{$is_host}}";
-    const HOST_ID = "{{$host_id}}";
-    const ROOM_ID = "{{$room_id}}";
+    const VIDEO_HOST_ID = "{{$host_id}}_v";
+    const SCREEN_HOST_ID = "{{$host_id}}_s";
+
+    const VIDEO_ROOM_ID = "{{$room_id}}_v";
+    const SCREEN_ROOM_ID = "{{$room_id}}_s";
 
     $('.owl-carousel').owlCarousel({
         loop: false,
@@ -64,13 +69,13 @@ use App\Models\VideoChatManager;
     })
 
     function onCarouselRefreshed(event) {
-        for (var index = 0; index < stream_list.length; index++){
+        for (var index = 0; index < stream_list.length; index++) {
             var new_video = document.getElementById(stream_list[index].peerId);
 
-            if (new_video==null) 
+            if (new_video == null)
                 continue;
 
-            if (new_video.classList.contains('ol__student-video') )
+            if (new_video.classList.contains('ol__student-video'))
                 continue;
 
             new_video.srcObject = stream_list[index];
@@ -82,9 +87,9 @@ use App\Models\VideoChatManager;
         }
     }
 
-    function getCurrentTime(){
-        var currentdate = new Date(); 
-        
+    function getCurrentTime() {
+        var currentdate = new Date();
+
         var hour = '';
         var minute = '';
 
@@ -109,23 +114,42 @@ use App\Models\VideoChatManager;
         $('.ol__chart-text-panel').append(html);
     }
 
-    function addChatByPartner(message, name, avatar_url){
+    function addChatByPartner(message, name, avatar_url) {
 
-        var html = "<div class='ol__chat-partner'><div class='ol__avatar'><img class='ol__avatar-size-40' src='"+avatar_url+"'></div><div class='ol__chat-content'><div class='ol__chat-time'>" + name + ", " + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "</div></div></div>";
+        var html = "<div class='ol__chat-partner'><div class='ol__avatar'><img class='ol__avatar-size-40' src='" + avatar_url + "'></div><div class='ol__chat-content'><div class='ol__chat-time'>" + name + ", " + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "</div></div></div>";
         $('.ol__chart-text-panel').append(html);
     }
 
-    (async function main() {
+    function openFullscreen(elem) {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        }
+    }
+
+    /*$(".js-btn-screenshare").on("click", function(e) {
+        $(".js-btn-screenshare").toggleClass('ol__btn-pink');
+        if ($(".js-btn-screenshare").hasClass('ol__btn-pink')) {
+            startScreenSharing();
+        }
+    });*/
+
+    (async function startVideoMeeting() {
 
         const host_video = document.getElementById('js-host-stream');
         const student_videos = document.getElementById('js-student-streams');
 
         const getRoomModeByHash = () => ('mesh');
 
-        window.addEventListener(
+        /*window.addEventListener(
             'hashchange',
             () => (roomMode.textContent = getRoomModeByHash())
-        );
+        );*/
 
         const localStream = await navigator.mediaDevices
             .getUserMedia({
@@ -145,10 +169,10 @@ use App\Models\VideoChatManager;
             stream_list.push(localStream);
             $('#js-student-streams').trigger('add.owl.carousel', ['<video id="self"></video>']).trigger('refresh.owl.carousel');
         }
-        
+
         var peer;
         if (IS_HOST == 1) {
-            peer = (window.peer = new Peer(HOST_ID, {
+            peer = (window.peer = new Peer(VIDEO_HOST_ID, {
                 key: window.__SKYWAY_KEY__,
                 debug: 3,
             }));
@@ -160,7 +184,7 @@ use App\Models\VideoChatManager;
         }
 
         peer.on('open', id => {
-            const room = peer.joinRoom(ROOM_ID, {
+            const room = peer.joinRoom(VIDEO_ROOM_ID, {
                 mode: getRoomModeByHash(),
                 stream: localStream,
                 videoBandwidth: 50,
@@ -171,10 +195,10 @@ use App\Models\VideoChatManager;
             });
 
             room.on('peerJoin', peerId => {
-                if (peerId == HOST_ID) {
-                    ol_notify_from_partner(peerId + "さん", "接続しました。" , "../images/avatar-teacher.png");
+                if (peerId == VIDEO_HOST_ID) {
+                    ol_notify_from_partner(peerId + "さん", "接続しました。", "../images/avatar-teacher.png");
                 } else {
-                    ol_notify_from_partner(peerId + "さん", "接続しました。" , "../images/avatar-teacher.png");
+                    ol_notify_from_partner(peerId + "さん", "接続しました。", "../images/avatar-teacher.png");
                 }
             });
 
@@ -183,7 +207,7 @@ use App\Models\VideoChatManager;
                 if (IS_HOST == 1) {
                     $('#js-student-streams').trigger('add.owl.carousel', ['<video id="' + stream.peerId + '"></video>']).trigger('refresh.owl.carousel');
                 } else {
-                    if (stream.peerId == HOST_ID) {
+                    if (stream.peerId == VIDEO_HOST_ID) {
                         var host_video = document.getElementById('js-host-stream');
                         host_video.srcObject = stream;
                         host_video.playsInline = true;
@@ -202,7 +226,7 @@ use App\Models\VideoChatManager;
 
                 if (student_video == null)
                     return;
-                
+
                 if (student_video.srcObject == null)
                     return;
 
@@ -210,7 +234,7 @@ use App\Models\VideoChatManager;
                 student_video.srcObject = null;
 
                 var removed_index = -1;
-                for (var index = 0; index < stream_list.length; index++){
+                for (var index = 0; index < stream_list.length; index++) {
                     if (stream_list[index].peerId == peerId) {
                         removed_index = index;
                         break;
@@ -219,36 +243,36 @@ use App\Models\VideoChatManager;
 
                 if (removed_index == -1)
                     return;
-                
+
                 $('#js-student-streams').trigger('remove.owl.carousel', removed_index).trigger('refresh.owl.carousel');
             });
 
-            room.on('data', ({ data, src }) => {
-                if (src == HOST_ID) {
+            room.on('data', ({
+                data,
+                src
+            }) => {
+                if (src == VIDEO_HOST_ID) {
                     addChatByPartner(data, src, "../images/avatar-teacher.png");
-                    ol_notify_from_partner(src + "さん", data , "../images/avatar-teacher.png");
+                    ol_notify_from_partner(src + "さん", data, "../images/avatar-teacher.png");
                 } else {
                     addChatByPartner(data, src, "../images/avatar-student.png");
-                    ol_notify_from_partner(src + "さん", data , "../images/avatar-student.png");
+                    ol_notify_from_partner(src + "さん", data, "../images/avatar-student.png");
                 }
                 $(".ol__chart-text-panel").scrollTop($(".ol__chart-text-panel").prop("scrollHeight"));
 
             });
 
-
-
-            $(".js-btn-send-message").on("click", function(){
+            $(".js-btn-send-message").on("click", function() {
                 room.send($("#txt_send_message").val());
-                addChatByMe($("#txt_send_message").val());   
-                $("#txt_send_message").val("");  
+                addChatByMe($("#txt_send_message").val());
+                $("#txt_send_message").val("");
                 $(".ol__chart-text-panel").scrollTop($(".ol__chart-text-panel").prop("scrollHeight"));
             });
 
-
-            $("#txt_send_message").keypress(function(e) { 
-                if (e.keyCode == 13){
+            $("#txt_send_message").keypress(function(e) {
+                if (e.keyCode == 13) {
                     $(".js-btn-send-message").click();
-                }    
+                }
             });
 
         });
@@ -258,9 +282,93 @@ use App\Models\VideoChatManager;
             //}
             ol_notify("通信にエラーが発生しました。", "danger");
         });
-
     })();
 
+    async function startScreenSharing() {
+        const host_video = document.getElementById('js-host-screen');
+        var localStream;
+
+        const getRoomModeByHash = () => ('mesh');
+
+        if (IS_HOST == 1) {
+            localStream = await navigator.mediaDevices
+                .getDisplayMedia({
+                    video: true,
+                })
+                .catch(console.error);
+
+            host_video.muted = true;
+            host_video.srcObject = localStream;
+            host_video.playsInline = true;
+            await host_video.play().catch(console.error);
+        }
+
+        var peer;
+        if (IS_HOST == 1) {
+            peer = (window.peer = new Peer(SCREEN_HOST_ID, {
+                key: window.__SKYWAY_KEY__,
+                debug: 3,
+            }));
+        } else {
+            peer = (window.peer = new Peer("{{VideoChatManager::generatePeerId()}}", {
+                key: window.__SKYWAY_KEY__,
+                debug: 3,
+            }));
+        }
+
+        peer.on('open', id => {
+            const room = peer.joinRoom(SCREEN_ROOM_ID, {
+                mode: getRoomModeByHash(),
+                stream: localStream,
+            });
+
+            room.once('open', () => {
+                //ol_notify("接続に成功しました。");
+            });
+
+            room.on('peerJoin', peerId => {
+                if (peerId == SCREEN_HOST_ID) {
+                    //ol_notify_from_partner(peerId + "さん", "接続しました。", "../images/avatar-teacher.png");
+                } else {
+                    //ol_notify_from_partner(peerId + "さん", "接続しました。", "../images/avatar-teacher.png");
+                }
+            });
+
+            room.on('stream', async stream => {
+                if (IS_HOST != 1) {
+                    if (stream.peerId == SCREEN_HOST_ID) {
+                        var host_video = document.getElementById('js-host-screen');
+                        host_video.srcObject = stream;
+                        host_video.playsInline = true;
+                        host_video.setAttribute('data-peer-id', stream.peerId);
+                        host_video.play().catch(console.error);
+                    }
+                }
+            });
+
+            room.on('peerLeave', peerId => {
+                if (peerId == SCREEN_HOST_ID) {
+                    const host_video = document.getElementById('js-host-screen');
+                    if (host_video == null)
+                        return;
+
+                    if (host_video.srcObject == null)
+                        return;
+
+                    host_video.srcObject.getTracks().forEach(track => track.stop());
+                    host_video.srcObject = null;
+                }
+            });
+        });
+        peer.on('error', error => {
+            //if (error.type != "peer-unavailable") {
+            //    console.log('error: type=' + error.type + ", message=" + error.message);
+            //}
+            ol_notify("通信にエラーが発生しました。(ScreenShare)", "danger");
+        });
+    }
+
+    startScreenSharing();
 
 </script>
 @endsection
