@@ -157,7 +157,7 @@ use App\Models\VideoChatManager;
                 video: true,
             })
             .catch(console.error);
-
+        
         // Render local stream
         if (IS_HOST == 1) {
             host_video.muted = true;
