@@ -14,9 +14,9 @@
 <body>
     <div id="app" class="ol__">
         <header class="ol__header">
-            <div class="ol__logo"><img src="../images/logo.svg" /></div>
+            <div class="ol__logo"><img src="{{asset('images/logo.svg')}}" /></div>
             <div class="ol__avatar">
-                <img class="ol__avatar-size-49" src="../images/avatar-teacher.png" />
+                <img class="ol__avatar-size-49" src="{{asset('images/avatar-teacher.png')}}" />
             </div> 
             <div class="ol__avatar-title">化粧 美咲<br>リモートメイク術</div>
             <div class="ol__actions">

@@ -49,7 +49,6 @@ use App\Models\VideoChatManager;
         </div>
     </div>
 </main>
-<input type="text" id="result_text" />
 @endsection
 
 @section('page_js')
@@ -373,7 +372,7 @@ use App\Models\VideoChatManager;
     function vr_function() {
         window.SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
         var recognition = new webkitSpeechRecognition();
-        recognition.lang = 'en';
+        recognition.lang = 'ja-JP';
         recognition.interimResults = true;
         recognition.continuous = true;
 
@@ -397,10 +396,10 @@ use App\Models\VideoChatManager;
             var results = event.results;
             for (var i = event.resultIndex; i < results.length; i++) {
                 if (results[i].isFinal) {
-                    document.getElementById('result_text').innerHTML = results[i][0].transcript;
+                    $("#txt_send_message").val(results[i][0].transcript);
+                    $(".js-btn-send-message").click();
                     vr_function();
                 } else {
-                    document.getElementById('result_text').innerHTML = "[途中経過] " + results[i][0].transcript;
                     flag_speech = 1;
                 }
             }
@@ -409,7 +408,9 @@ use App\Models\VideoChatManager;
         console.log("start");
         recognition.start();
     }
-    vr_function();
+    if (IS_HOST == 1) {
+        vr_function();
+    }
     startScreenSharing();
 </script>
 @endsection
