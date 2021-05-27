@@ -132,6 +132,20 @@ use App\Models\VideoChatManager;
         }
     }
 
+    $(".js-btn-trans").on("click", function(e) {
+        if (IS_HOST == 1) {
+            $(this).toggleClass('ol__btn-pink');
+            if ($(this).hasClass('ol__btn-pink')) {
+                is_allow_recog = 1;
+                vr_function_start();
+            } else {
+                is_allow_recog = 0;
+                vr_function_stop();
+            }
+        }
+    });
+
+
     /*$(".js-btn-screenshare").on("click", function(e) {
         $(".js-btn-screenshare").toggleClass('ol__btn-pink');
         if ($(".js-btn-screenshare").hasClass('ol__btn-pink')) {
@@ -368,8 +382,12 @@ use App\Models\VideoChatManager;
         });
     }
 
+    var is_allow_recog = 0;
     var flag_speech = 0;
-    function vr_function() {
+    function vr_function_start () {
+        if (is_allow_recog == 0)
+            return;
+
         window.SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
         var recognition = new webkitSpeechRecognition();
         recognition.lang = 'ja-JP';
@@ -385,21 +403,25 @@ use App\Models\VideoChatManager;
         recognition.onerror = function() {
             console.log("エラー");
             if (flag_speech == 0)
-                vr_function();
+                vr_function_start();
         };
         recognition.onsoundend = function() {
             console.log("停止中");
-            vr_function();
+            vr_function_start();
         };
 
         recognition.onresult = function(event) {
+            if (is_allow_recog == 0)
+                return;
+                
             var results = event.results;
             for (var i = event.resultIndex; i < results.length; i++) {
                 if (results[i].isFinal) {
                     $("#txt_send_message").val(results[i][0].transcript);
                     $(".js-btn-send-message").click();
-                    vr_function();
+                    vr_function_start();
                 } else {
+                    $("#txt_send_message").val(results[i][0].transcript);
                     flag_speech = 1;
                 }
             }
@@ -408,8 +430,11 @@ use App\Models\VideoChatManager;
         console.log("start");
         recognition.start();
     }
-    if (IS_HOST == 1) {
-        vr_function();
+    function vr_function_stop () {
+        window.SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
+        var recognition = new webkitSpeechRecognition();
+        recognition.stop();
+        console.log("----------------");
     }
     startScreenSharing();
 </script>
