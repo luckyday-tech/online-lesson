@@ -54,6 +54,9 @@ use App\Models\VideoChatManager;
 @section('page_js')
 <script>
     var stream_list = [];
+    var is_allow_recog = 0;
+    var is_allow_trans = 0;
+
     const IS_HOST = "{{$is_host}}";
     const VIDEO_HOST_ID = "{{$host_id}}_v";
     const SCREEN_HOST_ID = "{{$host_id}}_s";
@@ -115,9 +118,29 @@ use App\Models\VideoChatManager;
     }
 
     function addChatByPartner(message, name, avatar_url) {
+        if (is_allow_trans == 0) {
+            var html = "<div class='ol__chat-partner'><div class='ol__avatar'><img class='ol__avatar-size-40' src='" + avatar_url + "'></div><div class='ol__chat-content'><div class='ol__chat-time'>" + name + ", " + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "</div></div></div>";
+            $('.ol__chart-text-panel').append(html);
+        } else {
+            addChatByPartnerTrans(message, name, avatar_url);
+        }
+    }
 
-        var html = "<div class='ol__chat-partner'><div class='ol__avatar'><img class='ol__avatar-size-40' src='" + avatar_url + "'></div><div class='ol__chat-content'><div class='ol__chat-time'>" + name + ", " + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "</div></div></div>";
-        $('.ol__chart-text-panel').append(html);
+    function addChatByPartnerTrans(message, name, avatar_url){
+        $.ajax({
+            url: "https://script.google.com/macros/s/AKfycbzZtvOvf14TaMdRIYzocRcf3mktzGgXvlFvyczo/exec?text=" + message + "&source=ja&target=en",
+            type: 'get',
+            dataType: 'json',
+            success: function (ret) {
+                var html = "<div class='ol__chat-partner'><div class='ol__avatar'><img class='ol__avatar-size-40' src='" + avatar_url + "'></div><div class='ol__chat-content'><div class='ol__chat-time'>" + name + ", " + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "(" + ret.text +")</div></div></div>";
+                $('.ol__chart-text-panel').append(html);
+            },
+            fail: function (err) {
+                
+            },
+            error: function (err) {
+            }
+        });
     }
 
     function openFullscreen(elem) {
@@ -132,7 +155,7 @@ use App\Models\VideoChatManager;
         }
     }
 
-    $(".js-btn-trans").on("click", function(e) {
+    $(".js-btn-recognize").on("click", function(e) {
         if (IS_HOST == 1) {
             $(this).toggleClass('ol__btn-pink');
             if ($(this).hasClass('ol__btn-pink')) {
@@ -145,6 +168,17 @@ use App\Models\VideoChatManager;
         }
     });
 
+    $(".js-btn-trans").on("click", function(e) {
+            $(this).toggleClass('ol__btn-pink');
+            if ($(this).hasClass('ol__btn-pink')) {
+                is_allow_trans = 1;
+            } else {
+                is_allow_trans = 0;
+            }
+    });
+
+
+    
 
     /*$(".js-btn-screenshare").on("click", function(e) {
         $(".js-btn-screenshare").toggleClass('ol__btn-pink');
@@ -382,7 +416,6 @@ use App\Models\VideoChatManager;
         });
     }
 
-    var is_allow_recog = 0;
     var flag_speech = 0;
     function vr_function_start () {
         if (is_allow_recog == 0)
@@ -436,6 +469,7 @@ use App\Models\VideoChatManager;
         recognition.stop();
         console.log("----------------");
     }
+
     startScreenSharing();
 </script>
 @endsection

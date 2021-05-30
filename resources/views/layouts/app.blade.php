@@ -24,7 +24,8 @@
                 <a class="ol__btn ol__btn-action ol__btn-black ol__btn-disabled"><i class="fas fa-video-slash"></i></a>
                 <a class="ol__btn ol__btn-action ol__btn-black ol__btn-disabled"><i class="fas fa-phone"></i></a>
                 <a class="ol__btn ol__btn-action ol__btn-black ol__btn-disabled"><i class="fas fa-comment"></i></a>
-                <a class="ol__btn ol__btn-action ol__btn-black js-btn-trans"><i class="fas fa-random"></i></a>
+                <a class="ol__btn ol__btn-action ol__btn-black js-btn-trans"><i class="fas fa-language"></i></a>
+                <a class="ol__btn ol__btn-action ol__btn-black js-btn-recognize"><i class="fas fa-random"></i></a>
                 <a class="ol__btn ol__btn-action ol__btn-black ol__btn-disabled js-btn-screenshare"><i class="fas fa-chalkboard"></i></a>
                 <a class="ol__btn ol__btn-action ol__btn-blue" href="{{route('home', ['room_id'=> $room_id,'host_id'=> $host_id,'is_host'=> 0,])}}" target="_blank"><i class="fas fa-plus"></i></a>
             </div>
