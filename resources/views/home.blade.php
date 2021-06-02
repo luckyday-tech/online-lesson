@@ -112,9 +112,12 @@ use App\Models\VideoChatManager;
     }
 
     function addChatByMe(message) {
-
-        var html = "<div class='ol__chat-self'><div class='ol__chat-content'><div class='ol__chat-time'>" + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "</div></div></div>";
-        $('.ol__chart-text-panel').append(html);
+        if (is_allow_trans == 0) {
+            var html = "<div class='ol__chat-self'><div class='ol__chat-content'><div class='ol__chat-time'>" + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "</div></div></div>";
+            $('.ol__chart-text-panel').append(html);
+        } else {
+            addChatByMeTrans(message);
+        }
     }
 
     function addChatByPartner(message, name, avatar_url) {
@@ -126,13 +129,14 @@ use App\Models\VideoChatManager;
         }
     }
 
-    function addChatByPartnerTrans(message, name, avatar_url){
+    
+    function addChatByMeTrans(message){
         $.ajax({
             url: "https://script.google.com/macros/s/AKfycbzZtvOvf14TaMdRIYzocRcf3mktzGgXvlFvyczo/exec?text=" + message + "&source=ja&target=en",
             type: 'get',
             dataType: 'json',
             success: function (ret) {
-                var html = "<div class='ol__chat-partner'><div class='ol__avatar'><img class='ol__avatar-size-40' src='" + avatar_url + "'></div><div class='ol__chat-content'><div class='ol__chat-time'>" + name + ", " + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "(" + ret.text +")</div></div></div>";
+                var html = "<div class='ol__chat-self'><div class='ol__chat-content'><div class='ol__chat-time'>" + getCurrentTime() + "</div><div class='ol__chat-text'>" + message +  "<br>【訳文】" + ret.text +"</div></div></div>";
                 $('.ol__chart-text-panel').append(html);
             },
             fail: function (err) {
@@ -142,6 +146,24 @@ use App\Models\VideoChatManager;
             }
         });
     }
+
+    function addChatByPartnerTrans(message, name, avatar_url){
+        $.ajax({
+            url: "https://script.google.com/macros/s/AKfycbzZtvOvf14TaMdRIYzocRcf3mktzGgXvlFvyczo/exec?text=" + message + "&source=ja&target=en",
+            type: 'get',
+            dataType: 'json',
+            success: function (ret) {
+                var html = "<div class='ol__chat-partner'><div class='ol__avatar'><img class='ol__avatar-size-40' src='" + avatar_url + "'></div><div class='ol__chat-content'><div class='ol__chat-time'>" + name + ", " + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "<br>【訳文】" + ret.text +"</div></div></div>";
+                $('.ol__chart-text-panel').append(html);
+            },
+            fail: function (err) {
+                
+            },
+            error: function (err) {
+            }
+        });
+    }
+
 
     function openFullscreen(elem) {
         if (elem.requestFullscreen) {
