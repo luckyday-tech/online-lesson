@@ -132,11 +132,14 @@ use App\Models\VideoChatManager;
     
     function addChatByMeTrans(message){
         $.ajax({
-            url: "https://script.google.com/macros/s/AKfycbzZtvOvf14TaMdRIYzocRcf3mktzGgXvlFvyczo/exec?text=" + message + "&source=ja&target=en",
-            type: 'get',
+            url: "{{route('ajax.translate')}}",
+            type: 'post',
             dataType: 'json',
+            data: {
+                text: message
+            },
             success: function (ret) {
-                var html = "<div class='ol__chat-self'><div class='ol__chat-content'><div class='ol__chat-time'>" + getCurrentTime() + "</div><div class='ol__chat-text'>" + message +  "<br>【訳文】" + ret.text +"</div></div></div>";
+                var html = "<div class='ol__chat-self'><div class='ol__chat-content'><div class='ol__chat-time'>" + getCurrentTime() + "</div><div class='ol__chat-text'>" + message +  "<br>【訳文】" + ret.result +"</div></div></div>";
                 $('.ol__chart-text-panel').append(html);
             },
             fail: function (err) {
@@ -149,11 +152,14 @@ use App\Models\VideoChatManager;
 
     function addChatByPartnerTrans(message, name, avatar_url){
         $.ajax({
-            url: "https://script.google.com/macros/s/AKfycbzZtvOvf14TaMdRIYzocRcf3mktzGgXvlFvyczo/exec?text=" + message + "&source=ja&target=en",
-            type: 'get',
+            url: "{{route('ajax.translate')}}",
+            type: 'post',
             dataType: 'json',
+            data: {
+                text: message
+            },
             success: function (ret) {
-                var html = "<div class='ol__chat-partner'><div class='ol__avatar'><img class='ol__avatar-size-40' src='" + avatar_url + "'></div><div class='ol__chat-content'><div class='ol__chat-time'>" + name + ", " + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "<br>【訳文】" + ret.text +"</div></div></div>";
+                var html = "<div class='ol__chat-partner'><div class='ol__avatar'><img class='ol__avatar-size-40' src='" + avatar_url + "'></div><div class='ol__chat-content'><div class='ol__chat-time'>" + name + ", " + getCurrentTime() + "</div><div class='ol__chat-text'>" + message + "<br>【訳文】" + ret.result +"</div></div></div>";
                 $('.ol__chart-text-panel').append(html);
             },
             fail: function (err) {

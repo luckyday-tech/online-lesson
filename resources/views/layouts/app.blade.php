@@ -42,6 +42,13 @@
     window.__SKYWAY_KEY__ = "{{config('app.skyway_app_key')}}";
 </script>
 <script src="{{asset('js/app.js')}}"></script>
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    });
+</script>
 
 @yield('page_js')
 
