@@ -64,6 +64,21 @@ use App\Models\VideoChatManager;
     const VIDEO_ROOM_ID = "{{$room_id}}_v";
     const SCREEN_ROOM_ID = "{{$room_id}}_s";
 
+    const sora = Sora.connection('wss://abacus-platform.com/signaling', false);
+    const options = {
+      multistream: true,
+    }
+
+    if (IS_HOST == 1) {
+        options['clientId'] = VIDEO_HOST_ID;
+        options['connectionId'] = VIDEO_HOST_ID;
+    } else {
+        options['clientId'] = "{{VideoChatManager::generatePeerId()}}";
+        options['connectionId'] = "{{VideoChatManager::generatePeerId()}}";
+    }
+
+    const sora_sendrecv = sora.sendrecv(VIDEO_ROOM_ID, null, options);
+
     $('.owl-carousel').owlCarousel({
         loop: false,
         margin: 11,
@@ -128,7 +143,6 @@ use App\Models\VideoChatManager;
             addChatByPartnerTrans(message, name, avatar_url);
         }
     }
-
     
     function addChatByMeTrans(message){
         $.ajax({
@@ -170,7 +184,6 @@ use App\Models\VideoChatManager;
         });
     }
 
-
     function openFullscreen(elem) {
         if (elem.requestFullscreen) {
             elem.requestFullscreen();
@@ -205,17 +218,88 @@ use App\Models\VideoChatManager;
             }
     });
 
-
-    
-
-    /*$(".js-btn-screenshare").on("click", function(e) {
+    $(".js-btn-screenshare").on("click", function(e) {
         $(".js-btn-screenshare").toggleClass('ol__btn-pink');
         if ($(".js-btn-screenshare").hasClass('ol__btn-pink')) {
             startScreenSharing();
         }
-    });*/
+    });
 
-    (async function startVideoMeeting() {
+    $(".js-btn-videomeeting").on("click", function(e) {
+        if (!$(".js-btn-videomeeting").hasClass('ol__btn-pink')) {
+            startVideoMeetingSora();
+            $(".js-btn-videomeeting").toggleClass('ol__btn-pink');
+        }
+    });
+
+    async function startVideoMeetingSora() {
+        const host_video = document.getElementById('js-host-stream');
+        const student_videos = document.getElementById('js-student-streams');
+
+        const constraints = {
+            audio: true,
+            video: {
+                width: 640, height: 480
+            }
+        };
+        
+        sora_sendrecv.on('track', function (event) {
+            const stream = event.streams[0];
+            if (!stream) return;
+            console.log("-------------------------------");
+            console.log(event);
+            console.log(sora_sendrecv);
+            console.log(stream);
+            console.log("BBBBBBBBBBBBBBBBBBBBBBBBBB");
+            const remoteVideoId = 'sendrecv1-remotevideo-' + stream.id;
+            const remoteVideos = document.querySelector('#sendrecv1-remote-videos');
+            if (!remoteVideos.querySelector('#' + remoteVideoId)) {
+                const remoteVideo = document.createElement('video');
+                remoteVideo.id = remoteVideoId;
+                remoteVideo.style.border = '1px solid red';
+                remoteVideo.autoplay = true;
+                remoteVideo.playsinline = true;
+                remoteVideo.controls = true;
+                remoteVideo.width = '160';
+                remoteVideo.height = '120';
+                remoteVideo.srcObject = stream;
+                remoteVideos.appendChild(remoteVideo);
+            }
+        });
+
+        const localStream = await navigator.mediaDevices
+        .getUserMedia(constraints)
+        .then(mediaStream => {
+            sora_sendrecv.connect(mediaStream)
+            .then(stream => {
+                console.log("-------------------------------");
+                console.log(sora_sendrecv);
+                console.log(stream);
+                console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                if (IS_HOST == 1) {
+                    host_video.muted = true;
+                    host_video.srcObject = stream;
+                    host_video.playsInline = true;
+                    host_video.play().catch(console.error);
+                } else {
+                    stream.peerId = 'self';
+                    stream_list.push(stream);
+                    $('#js-student-streams').trigger('add.owl.carousel', ['<video id="self"></video>']).trigger('refresh.owl.carousel');
+                }
+            });
+        })
+        .catch(console.error);
+
+
+        /*sendrecv1.on('removetrack', function (event) {
+            const remoteVideo = document.querySelector('#sendrecv1-remotevideo-' + event.target.id);
+            if (remoteVideo) {
+                document.querySelector('#sendrecv1-remote-videos').removeChild(remoteVideo);
+            }
+        });*/
+    }
+
+    async function startVideoMeetingSkyway() {
 
         const host_video = document.getElementById('js-host-stream');
         const student_videos = document.getElementById('js-student-streams');
@@ -358,7 +442,7 @@ use App\Models\VideoChatManager;
             //}
             ol_notify("通信にエラーが発生しました。", "danger");
         });
-    })();
+    }
 
     async function startScreenSharing() {
         const host_video = document.getElementById('js-host-screen');
@@ -498,6 +582,6 @@ use App\Models\VideoChatManager;
         console.log("----------------");
     }
 
-    startScreenSharing();
+    //startScreenSharing();
 </script>
 @endsection
