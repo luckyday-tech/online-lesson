@@ -68,13 +68,13 @@ use App\Models\VideoChatManager;
     const S_HOST_ID = "s_user_{{$room['host_id']}}";
     const S_ROOM_ID = "s_room_{{$room['id']}}";
 
-    const sora_v = Sora.connection('wss://abacus-platform.com/signaling', false);
+    const sora_v = Sora.connection('wss://abacus-platform.com:8043/signaling', false);
     const options_v = {
       multistream: true,
       clientId: V_CLIENT_ID,
     }
 
-    const sora_s = Sora.connection('wss://abacus-platform.com/signaling', false);
+    const sora_s = Sora.connection('wss://abacus-platform.com:8043/signaling', false);
     const options_s = {
       multistream: true,
       clientId: S_CLIENT_ID,
