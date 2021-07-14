@@ -115,6 +115,16 @@ use App\Models\VideoChatManager;
         }
     });
 
+    $(".js-btn-trans").on("click", function(e) {
+            $(this).toggleClass('ol__btn-pink');
+            if ($(this).hasClass('ol__btn-pink')) {
+                is_allow_trans = 1;
+            } else {
+                is_allow_trans = 0;
+            }
+    });
+
+
     async function startVideoMeetingSora() {
         const host_video = document.getElementById('js-host-stream');
         const student_videos = document.getElementById('js-student-streams');
@@ -318,10 +328,18 @@ use App\Models\VideoChatManager;
             var results = event.results;
             for (var i = event.resultIndex; i < results.length; i++) {
                 if (results[i].isFinal) {
-                    translate(results[i][0].transcript)
+                    if (is_allow_trans == 1) {
+                        translate(results[i][0].transcript)
+                    } else {
+                        $("#js-host-screen-text").html(results[i][0].transcript);
+                    }
                     startListening();
                 } else {
-                    $("#js-host-screen-text").html(results[i][0].transcript + "<br>【訳文】 ...");
+                    if (is_allow_trans == 1) {
+                        $("#js-host-screen-text").html(results[i][0].transcript + "<br>【訳文】 ...");
+                    } else {
+                        $("#js-host-screen-text").html(results[i][0].transcript);
+                    }
                     flag_speech = 1;
                 }
             }
