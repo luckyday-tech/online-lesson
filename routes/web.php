@@ -22,3 +22,5 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::post('/ajax/translate', [App\Http\Controllers\TranslateController::class, 'translate'])->name('ajax.translate');
+
+//Route::post('/ajax/home/')

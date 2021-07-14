@@ -8,6 +8,9 @@ define('VIDEOCHAT_ERROR_API_SEC',       4);
 
 define('ADDITIONAL_TIME', 900);
 
+define('HOST_TYPE_TEACHER', 1);
+define('HOST_TYPE_STUDENT', 0);
+
 /********************/
 $g_masterData = array(
 );

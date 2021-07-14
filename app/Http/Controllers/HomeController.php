@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\VideoChatManager;
+use App\Models\OnlineUser;
+use App\Models\Room;
+use App\Models\User;
 
 class HomeController extends Controller
 {
@@ -26,18 +28,20 @@ class HomeController extends Controller
     {
         $params = $request->all();
 
-        if (empty($params['room_id']) || empty($params['host_id'])) {
-            return redirect()->route('home', [
-                'room_id'=> VideoChatManager::generatePeerId(),
-                'host_id'=> VideoChatManager::generatePeerId(),
-                'is_host'=> 1,
-            ]);
+        if (empty($params["room_id"]) || empty($params['user_id'])) {
+            die('Invalid Params');
+        }
+
+        $room = Room::find($params["room_id"]);
+        $user = User::find($params["user_id"]);
+
+        if (empty($room) || empty($user)) {
+            die('Invalid user');
         }
 
         return view('home', [
-            'room_id'=> $params['room_id'],
-            'host_id'=> $params['host_id'],
-            'is_host'=> (!empty($params['is_host']))?$params['is_host']:0,
+            'room'=> $room,
+            'user'=> $user,
         ]);
     }
 }

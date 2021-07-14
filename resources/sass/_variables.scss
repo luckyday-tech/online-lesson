@@ -98,3 +98,12 @@ $fs-bold: 700;
     font-weight: $fs-normal;
     font-family: "Noto Sans JP", sans-serif;
 }
+
+@mixin font-screen-text {
+    color: #000000;
+    font-size: 18px;
+    line-height: 20px;
+    letter-spacing: 0px;
+    font-weight: $fs-normal;
+    font-family: "Noto Sans JP", sans-serif;
+}
