@@ -151,7 +151,7 @@ use App\Models\VideoChatManager;
                 video: true,
             })
             .catch((error)=>{
-                basicAlert('カメラに接続できません。カメラ接続確認後ページをリフレッシュしてください。');
+                alert('カメラに接続できません。カメラ接続確認後ページをリフレッシュしてください。');
                 check_local_camera = false;
             });
 
