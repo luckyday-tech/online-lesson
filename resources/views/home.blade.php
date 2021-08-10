@@ -40,7 +40,7 @@ use App\Models\VideoChatManager;
     <div class="ol__body">
         <div class="ol__board">
             <div class="ol__host-screen">
-                <video id="js-host-screen" controls></video>
+                <video id="js-host-screen" autoplay="" playsinline="" controls=""></video>
                 <div class="ol_host-screen-text">
                     <p id="js-host-screen-text"></p>
                 </div>
@@ -75,7 +75,7 @@ use App\Models\VideoChatManager;
         const options_v = {
             multistream: true,
             clientId: V_CLIENT_ID,
-video: {
+            video: {
                 "codec_type": "VP9"
             }
         }
@@ -84,7 +84,7 @@ video: {
         const options_s = {
             multistream: true,
             clientId: S_CLIENT_ID,
-video: {
+            video: {
                 "codec_type": "VP9"
             }
         }
@@ -139,9 +139,21 @@ video: {
             const student_videos = document.getElementById('js-student-streams');
 
             const constraints = {
-                audio: true,
-                video: true
+                audio: false,
+                video: {
+                    width: 640, height:480
+                }
             };
+
+            const local_stream = await navigator.mediaDevices
+            .getUserMedia({
+                audio: true,
+                video: true,
+            })
+            .catch((error)=>{
+                alert('カメラに接続できません。カメラ接続確認後ページをリフレッシュしてください。');
+                check_local_camera = false;
+            });
 
             const localStream = await navigator.mediaDevices
                 .getUserMedia(constraints)
@@ -261,6 +273,7 @@ video: {
             if (HOST_TYPE == "{{HOST_TYPE_TEACHER}}") {
                 const localStream = await navigator.mediaDevices
                     .getDisplayMedia({
+                        audio: false,
                         video: true,
                     })
                     .then(mediaStream => {
