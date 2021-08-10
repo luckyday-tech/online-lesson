@@ -139,7 +139,7 @@ use App\Models\VideoChatManager;
             const student_videos = document.getElementById('js-student-streams');
 
             const constraints = {
-                audio: true,
+                audio: false,
                 video: {
                     width: 640, height:480
                 }
