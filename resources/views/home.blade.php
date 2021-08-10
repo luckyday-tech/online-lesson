@@ -145,16 +145,6 @@ use App\Models\VideoChatManager;
                 }
             };
 
-//            const local_stream = await navigator.mediaDevices
-//            .getUserMedia({
-//                audio: true,
-//                video: true,
-//            })
-//            .catch((error)=>{
-//                alert('カメラに接続できません。カメラ接続確認後ページをリフレッシュしてください。');
-//                check_local_camera = false;
-//            });
-
             const localStream = await navigator.mediaDevices
                 .getUserMedia(constraints)
                 .then(mediaStream => {
