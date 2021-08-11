@@ -76,8 +76,7 @@ use App\Models\VideoChatManager;
             multistream: true,
             clientId: V_CLIENT_ID,
             video: {
-                codec_type: "VP8",
-                bit_rate: 500
+                codec_type: "VP9"
             }
         }
 
@@ -86,8 +85,7 @@ use App\Models\VideoChatManager;
             multistream: true,
             clientId: S_CLIENT_ID,
             video: {
-                codec_type: "VP8",
-                bit_rate: 500
+                codec_type: "VP9"
             }
         }
 
