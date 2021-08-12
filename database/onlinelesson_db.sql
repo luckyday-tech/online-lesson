@@ -1,140 +1,82 @@
--- phpMyAdmin SQL Dump
--- version 5.0.2
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- 생성 시간: 21-07-14 12:57
--- 서버 버전: 10.4.14-MariaDB
--- PHP 버전: 7.4.10
+/*
+ Navicat Premium Data Transfer
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+ Source Server         : JYJ_Computer
+ Source Server Type    : MySQL
+ Source Server Version : 100414
+ Source Host           : 192.168.2.138:3306
+ Source Schema         : onlinelesson_db
 
+ Target Server Type    : MySQL
+ Target Server Version : 100414
+ File Encoding         : 65001
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+ Date: 11/08/2021 01:44:21
+*/
 
---
--- 데이터베이스: `onlinelesson_db`
---
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
--- --------------------------------------------------------
-
---
--- 테이블 구조 `online_users`
---
-
-CREATE TABLE `online_users` (
-  `id` int(11) NOT NULL,
+-- ----------------------------
+-- Table structure for online_users
+-- ----------------------------
+DROP TABLE IF EXISTS `online_users`;
+CREATE TABLE `online_users`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `room_id` int(11) NOT NULL DEFAULT 0,
   `user_id` int(11) NOT NULL DEFAULT 0,
-  `peer_id` varchar(128) NOT NULL,
+  `peer_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `is_teacher` int(11) NOT NULL DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `created_at` timestamp(0) NOT NULL DEFAULT current_timestamp(0),
+  `updated_at` timestamp(0) NOT NULL DEFAULT current_timestamp(0) ON UPDATE CURRENT_TIMESTAMP(0),
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
--- --------------------------------------------------------
-
---
--- 테이블 구조 `rooms`
---
-
-CREATE TABLE `rooms` (
-  `id` int(11) NOT NULL,
-  `room_title` varchar(128) NOT NULL,
+-- ----------------------------
+-- Table structure for rooms
+-- ----------------------------
+DROP TABLE IF EXISTS `rooms`;
+CREATE TABLE `rooms`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `room_title` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `host_id` int(11) NOT NULL DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `created_at` timestamp(0) NOT NULL DEFAULT current_timestamp(0),
+  `updated_at` timestamp(0) NOT NULL DEFAULT current_timestamp(0) ON UPDATE CURRENT_TIMESTAMP(0),
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
---
--- 테이블의 덤프 데이터 `rooms`
---
+-- ----------------------------
+-- Records of rooms
+-- ----------------------------
+INSERT INTO `rooms` VALUES (1, 'test_lesson', 1, '2021-07-13 11:48:27', '2021-07-13 15:38:58');
 
-INSERT INTO `rooms` (`id`, `room_title`, `host_id`, `created_at`, `updated_at`) VALUES
-(1, 'test_lesson', 1, '2021-07-13 03:48:27', '2021-07-13 07:38:58');
-
--- --------------------------------------------------------
-
---
--- 테이블 구조 `users`
---
-
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `name` varchar(128) NOT NULL,
-  `email` varchar(128) NOT NULL,
+-- ----------------------------
+-- Table structure for users
+-- ----------------------------
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users`  (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `type` int(11) NOT NULL DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `created_at` timestamp(0) NOT NULL DEFAULT current_timestamp(0),
+  `updated_at` timestamp(0) NOT NULL DEFAULT current_timestamp(0) ON UPDATE CURRENT_TIMESTAMP(0),
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
---
--- 테이블의 덤프 데이터 `users`
---
+-- ----------------------------
+-- Records of users
+-- ----------------------------
+INSERT INTO `users` VALUES (1, 'teacher01', 'teacher01@gmail.com', 1, '2021-07-13 11:46:43', '2021-07-13 11:46:43');
+INSERT INTO `users` VALUES (2, 'student01', 'student01@gmail.com', 0, '2021-07-13 11:48:05', '2021-07-13 11:48:05');
+INSERT INTO `users` VALUES (3, 'student02', 'student02@gmail.com', 0, '2021-07-13 11:48:05', '2021-07-13 11:48:05');
+INSERT INTO `users` VALUES (4, 'student03', 'student03@gmail.com', 0, '2021-07-13 11:48:05', '2021-07-13 11:48:05');
+INSERT INTO `users` VALUES (5, 'student04', 'student04@gmail.com', 0, '2021-07-13 11:48:05', '2021-07-13 11:48:05');
+INSERT INTO `users` VALUES (6, 'student05', 'student05@gmail.com', 0, '2021-07-13 11:48:05', '2021-07-13 11:48:05');
+INSERT INTO `users` VALUES (7, 'student06', 'student06@gmail.com', 0, '2021-07-13 11:48:05', '2021-07-13 11:48:05');
+INSERT INTO `users` VALUES (8, 'student07', 'student07@gmail.com', 0, '2021-07-13 11:48:05', '2021-07-13 11:48:05');
+INSERT INTO `users` VALUES (9, 'student08', 'student08@gmail.com', 0, '2021-07-13 11:48:05', '2021-07-13 11:48:05');
+INSERT INTO `users` VALUES (10, 'student09', 'student09@gmail.com', 0, '2021-07-13 11:48:05', '2021-07-13 11:48:05');
+INSERT INTO `users` VALUES (11, 'student10', 'student10@gmail.com', 0, '2021-07-13 11:48:06', '2021-07-13 11:48:06');
 
-INSERT INTO `users` (`id`, `name`, `email`, `type`, `created_at`, `updated_at`) VALUES
-(1, 'teacher01', 'teacher01@gmail.com', 1, '2021-07-13 03:46:43', '2021-07-13 03:46:43'),
-(2, 'student01', 'student01@gmail.com', 0, '2021-07-13 03:48:05', '2021-07-13 03:48:05'),
-(3, 'student02', 'student02@gmail.com', 0, '2021-07-13 03:48:05', '2021-07-13 03:48:05'),
-(4, 'student03', 'student03@gmail.com', 0, '2021-07-13 03:48:05', '2021-07-13 03:48:05'),
-(5, 'student04', 'student04@gmail.com', 0, '2021-07-13 03:48:05', '2021-07-13 03:48:05'),
-(6, 'student05', 'student05@gmail.com', 0, '2021-07-13 03:48:05', '2021-07-13 03:48:05'),
-(7, 'student06', 'student06@gmail.com', 0, '2021-07-13 03:48:05', '2021-07-13 03:48:05'),
-(8, 'student07', 'student07@gmail.com', 0, '2021-07-13 03:48:05', '2021-07-13 03:48:05'),
-(9, 'student08', 'student08@gmail.com', 0, '2021-07-13 03:48:05', '2021-07-13 03:48:05'),
-(10, 'student09', 'student09@gmail.com', 0, '2021-07-13 03:48:05', '2021-07-13 03:48:05'),
-(11, 'student10', 'student10@gmail.com', 0, '2021-07-13 03:48:06', '2021-07-13 03:48:06');
-
---
--- 덤프된 테이블의 인덱스
---
-
---
--- 테이블의 인덱스 `online_users`
---
-ALTER TABLE `online_users`
-  ADD PRIMARY KEY (`id`);
-
---
--- 테이블의 인덱스 `rooms`
---
-ALTER TABLE `rooms`
-  ADD PRIMARY KEY (`id`);
-
---
--- 테이블의 인덱스 `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
-
---
--- 덤프된 테이블의 AUTO_INCREMENT
---
-
---
--- 테이블의 AUTO_INCREMENT `online_users`
---
-ALTER TABLE `online_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- 테이블의 AUTO_INCREMENT `rooms`
---
-ALTER TABLE `rooms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- 테이블의 AUTO_INCREMENT `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+SET FOREIGN_KEY_CHECKS = 1;
