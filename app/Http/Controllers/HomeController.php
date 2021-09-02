@@ -34,14 +34,42 @@ class HomeController extends Controller
 
         $room = Room::find($params["room_id"]);
         $user = User::find($params["user_id"]);
-
         if (empty($room) || empty($user)) {
             die('Invalid user');
         }
 
+        $teacher = User::where('type', HOST_TYPE_TEACHER)->first();
+        if (empty($teacher)) {
+            die('no teacher in this room');
+        }
+
+        $personList = [];
+        $studentInfos = [];
+        $studentList = User::where('type', HOST_TYPE_STUDENT)->get();
+        foreach($studentList as $student) {
+            $studentInfos[] = [
+                'id' => $student['id'],
+                'name' => $student['name'],
+                'type' => 1,
+            ];
+        }
+        $personList['teacher'] = [
+            'id' => $teacher->id,
+            'name' => $teacher->name,
+        ];
+        $personList['student'] = $studentInfos;
+
+
+
         return view('home', [
-            'room'=> $room,
-            'user'=> $user,
+            'hostType' => $user->type,
+            'roomId' => $params['room_id'],
+            'teacherId' => $teacher->id,
+            'studentId' => $user->id,
+            'studentType' => 1,
+            'selfName' => $user->name,
+            'lessonTitle' => "Test Lesson",
+            'personList' => $personList,
         ]);
     }
 }
