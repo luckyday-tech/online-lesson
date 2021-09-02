@@ -19864,21 +19864,21 @@ p {
 }
 .ol__pc .ol__main .ol__body .ol__board .ol__host-screen .ol_host-screen-text.active {
   color: #000000;
-  font-size: 18px;
-  line-height: 20px;
+  font-size: 20px;
+  line-height: 24px;
   letter-spacing: 0px;
   font-weight: 400;
   font-family: "Noto Sans JP", sans-serif;
   display: block;
   position: absolute;
-  bottom: 100px;
+  bottom: 0px;
   width: 100%;
-  min-height: 40px;
+  min-height: 80px;
   margin: auto;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(0, 0, 0, 0.3);
   padding: 10px;
   text-align: center;
-  color: #6b4102;
+  color: #ffffff;
 }
 .ol__pc .ol__main .ol__body .ol__board img {
   -o-object-fit: cover;

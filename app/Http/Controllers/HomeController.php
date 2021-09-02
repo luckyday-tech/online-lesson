@@ -63,9 +63,9 @@ class HomeController extends Controller
 
         return view('home', [
             'hostType' => $user->type,
-            'roomId' => $params['room_id'],
-            'teacherId' => $teacher->id,
-            'studentId' => $user->id,
+            'roomId' => 'r_1_' . $params['room_id'],
+            'teacherId' => 't_' . $teacher->id . 'z' . $params['room_id'],
+            'studentId' => 's_1_' . $user->id . 'z' . $params['room_id'],
             'studentType' => 1,
             'selfName' => $user->name,
             'lessonTitle' => "Test Lesson",
