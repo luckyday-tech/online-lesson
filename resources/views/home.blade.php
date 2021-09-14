@@ -176,11 +176,13 @@
     var localStream = null;
     var sora_sendrecv_v = null;
     var sora_sendrecv_s = null;
+    var dataPeer = null;
     var selectedVideoConstraint = null;
     var selectedScreenConstraint = null;
     var selectedDeviceForScreen = null;
     var mediaRecorder = null;
     var blobsRecorded = [];
+    var leftTime = "{{$leftTime}}";
 
     const PERSON_LIST = <?php echo json_encode($personList) ?>;
     const HOST_TYPE_STUDENT = "{{HOST_TYPE_STUDENT}}";
@@ -194,12 +196,11 @@
     const STUDENT_TYPE = "{{$studentType}}";
     const V_CLIENT_ID = "v_user_{{$studentId}}";
     const V_HOST_ID = "v_user_{{$teacherId}}";
-    const V_ROOM_ID = "v_room_{{$roomId}}";
-    
+    const V_ROOM_ID = "{{ SORA_CHANNEL_PREFIX_VIDEO }}_{{$roomId}}";
 
     const S_CLIENT_ID = "s_user_{{$studentId}}";
     const S_HOST_ID = "s_user_{{$teacherId}}";
-    const S_ROOM_ID = "s_room_{{$roomId}}";
+    const S_ROOM_ID = "{{ SORA_CHANNEL_PREFIX_SCREEN }}_{{$roomId}}";
 
     function connectSoraForVideoMeeting() {
         var sora_v = Sora.connection('wss://abacus-platform.com:8043/signaling', false);
@@ -209,15 +210,13 @@
             videoCodecType: "VP8",
             videoBitRate: HOST_TYPE==HOST_TYPE_TEACHER?DEFAULT_VIDEO_RATE_TEACHER:DEFAULT_VIDEO_RATE_STUDENT,
         }
-        sora_sendrecv_v = sora_v.sendrecv(V_ROOM_ID, null, options_v);
 
-        sora_sendrecv_v.on("disconnect", (event) => {
-            if (event.type = "abend") {
-                if ($('.ol__btn-camera').hasClass('active')) {
-                    setTimeout(startVideoMeetingSora, 2000);
-                }
-            }
-        });
+        if (HOST_TYPE == HOST_TYPE_STUDENT && STUDENT_TYPE == STUDENT_TYPE_TOUR) {
+            sora_sendrecv_v = sora_v.recvonly(V_ROOM_ID, null, options_v);
+        } else {
+            sora_sendrecv_v = sora_v.sendrecv(V_ROOM_ID, null, options_v);
+        }
+
     }
 
     function connectSoraForScreenSharing() {
@@ -228,7 +227,6 @@
         videoCodecType: "VP8",
         }
 
-        sora_sendrecv_s = null;
         if (HOST_TYPE == HOST_TYPE_TEACHER) {
             sora_sendrecv_s = sora_s.sendonly(S_ROOM_ID, null, options_s);
         } else {
@@ -236,7 +234,7 @@
         }
 
         sora_sendrecv_s.on("disconnect", (event) => {
-            if (event.type = "abend") {
+            if (event.type == "abend") {
                 if ($('.ol__btn-screen').hasClass('active') && HOST_TYPE == HOST_TYPE_TEACHER || HOST_TYPE == HOST_TYPE_STUDENT) {
                     setTimeout(startScreenSharingSora, 2000);
                 }
@@ -278,31 +276,38 @@
             constraints = selectedVideoConstraint;
         }
         
-        $('#js-host-stream').LoadingOverlay('show');
+        if (HOST_TYPE == HOST_TYPE_STUDENT && STUDENT_TYPE == STUDENT_TYPE_TOUR) {
+            sora_sendrecv_v.connect()
+                .catch(e => {
+                    console.error(e);
+                });
+        } else {
+            $('#js-host-stream').LoadingOverlay('show');
+            await navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then(mediaStream => {
+                window.localStream = mediaStream;
+                sora_sendrecv_v.connect(mediaStream)
+                .then(stream => {
+                    //console.log(stream);
+                    if (HOST_TYPE == HOST_TYPE_TEACHER) {
+                        host_video.muted = true;
+                        host_video.srcObject = stream;
+                        host_video.playsInline = true;
+                        host_video.play().catch(console.error);
+                    } else {
+                        stream.peerId = 'self';
+                        stream_list.push(stream);
+                        $('#js-student-streams').trigger('add.owl.carousel', ['<div class="ol__student-item"><video id="self"></video><div class="ol__student-title subscribe">{{$selfName}}</div></div>', 0]).trigger('refresh.owl.carousel');
+                    }
+                    $('#btn_mic').addClass('active');
+                    $('#btn_camera').addClass('active');
+                    $('#js-host-stream').LoadingOverlay('hide');
+                });
+            })
+            .catch(console.error);
 
-        await navigator.mediaDevices
-        .getUserMedia(constraints)
-        .then(mediaStream => {
-            window.localStream = mediaStream;
-            sora_sendrecv_v.connect(mediaStream)
-            .then(stream => {
-                //console.log(stream);
-                if (HOST_TYPE == HOST_TYPE_TEACHER) {
-                    host_video.muted = true;
-                    host_video.srcObject = stream;
-                    host_video.playsInline = true;
-                    host_video.play().catch(console.error);
-                } else {
-                    stream.peerId = 'self';
-                    stream_list.push(stream);
-                    $('#js-student-streams').trigger('add.owl.carousel', ['<div class="ol__student-item"><video id="self"></video><div class="ol__student-title subscribe">{{$selfName}}</div></div>', 0]).trigger('refresh.owl.carousel');
-                }
-                $('#btn_mic').addClass('active');
-                $('#btn_camera').addClass('active');
-                $('#js-host-stream').LoadingOverlay('hide');
-            });
-        })
-        .catch(console.error);
+        }
 
         sora_sendrecv_v.on('track', function (event) {
             const stream = event.streams[0];
@@ -313,10 +318,10 @@
         });
 
         sora_sendrecv_v.on('notify', function (event) {
-            if (event.event_type == "connection.created") {
+            if (event.event_type == "connection.created") { 
                 if ((event.client_id == (HOST_TYPE==HOST_TYPE_TEACHER?V_HOST_ID:V_CLIENT_ID))) {
                     if (event.metadata_list != undefined) {
-                        for (index = 0; index < event.metadata_list.length; index++) {
+                        for (let index = 0; index < event.metadata_list.length; index++) {
                             set_peer_id(event.metadata_list[index].connection_id, event.metadata_list[index].client_id);
                         }
                     }
@@ -332,14 +337,26 @@
             }
         });
 
+        sora_sendrecv_v.on("disconnect", (event) => {
+            if (event.type == "abend") {
+                remove_all_stream();
+                if ($('.ol__btn-camera').hasClass('active')) {
+                    setTimeout(startVideoMeetingSora, 2000);
+                }
+            }
+        });
+
         function set_peer_id(connection_id, peer_id){
-            for (index = 0; index < stream_list.length; index ++){
+            for (let index = 0; index < stream_list.length; index ++){
                 if (stream_list[index].peerId == peer_id) {
                     stream_list.splice(index, 1);
                 }
             }
-            for (index = 0; index < stream_list.length; index ++){
+
+            var is_found = false;
+            for (let index = 0; index < stream_list.length; index ++){
                 if(stream_list[index].id == connection_id) {
+                    is_found = true;
                     stream_list[index].peerId = peer_id;
                     if (peer_id == V_HOST_ID) {
                         var host_video = document.getElementById('js-host-stream');
@@ -348,24 +365,32 @@
                         host_video.setAttribute('data-peer-id', peer_id);
                         host_video.play().catch(console.error);
                     } else {
-                        
                         $('#js-student-streams').trigger('add.owl.carousel', ['<div class="ol__student-item"><video id="' + peer_id + '"></video><div class="ol__student-title '+getStudentType(peer_id, PERSON_LIST)+'">' + getName(peer_id, PERSON_LIST) + '</div></div>']).trigger('refresh.owl.carousel');
                     }
                     return true;
                 }
             }
+
+            
             return false;
         }
 
         function remove_stream(connection_id) {
-            for (index = 0; index < stream_list.length; index ++){
+            for (let index = 0; index < stream_list.length; index ++){
                 if (stream_list[index].id  == connection_id) {
                     remove_student(stream_list[index].peerId);
                     stream_list.splice(index, 1);
                     return true;
                 }
             }
+            return false;
+        }
 
+        function remove_all_stream() {
+            for (let index = 0; index < stream_list.length; index ++){
+                remove_student(stream_list[index].peerId);
+                stream_list.splice(index, 1);
+            }
             return false;
         }
 
@@ -383,23 +408,25 @@
             student_video.srcObject.getTracks().forEach(track => track.stop());
             student_video.srcObject = null;
 
-            var removed_index = -1;
-            for (var index = 0; index < stream_list.length; index++) {
-                if (stream_list[index].peerId == peer_id) {
-                    removed_index = index;
-                    break;
-                }
-            }
-
+            var removed_index = get_index(peer_id);
             if (removed_index == -1)
                 return;
 
             $('#js-student-streams').trigger('remove.owl.carousel', removed_index).trigger('refresh.owl.carousel');
         }
 
+        function get_index(peer_id) {
+            var students = $('.ol__student-video');
+            for (let index = 0; index < students.length; index++) {
+                if(students.eq(index).attr('data-peer-id') == peer_id) {
+                    return index;
+                }
+            }
+            return -1;
+        }
+
         function remove_all_stream(){
-            for (index = 0; index < stream_list.length; index ++){
-                console.log(stream_list[index]);
+            for (let index = 0; index < stream_list.length; index ++){
                 remove_student(stream_list[index].peerId);
             }
             stream_list = [];
@@ -435,7 +462,6 @@
                     isScreen = true;
                 }
             } 
-
 
             if (isCamera) {
                 var constraints = {
@@ -529,7 +555,7 @@
     async function startMessagingSkyway() {
         $('.ol__chat').LoadingOverlay('show');
 
-        var dataPeer = (window.peer = new Peer(HOST_TYPE==HOST_TYPE_TEACHER?V_HOST_ID:V_CLIENT_ID, {
+        dataPeer = (window.peer = new Peer(HOST_TYPE==HOST_TYPE_TEACHER?V_HOST_ID:V_CLIENT_ID, {
             key: window.__SKYWAY_KEY__,
             debug: 0,
         }));
@@ -580,6 +606,10 @@
             });
 
             $(".js-btn-send-message").on("click", function() {
+                if (HOST_TYPE == HOST_TYPE_STUDENT && STUDENT_TYPE == STUDENT_TYPE_TOUR) {
+                    Swal.fire("見学生には権限がありません。"); return false;
+                }
+
                 if (!$(".ol__btn-chat").hasClass("active")) {
                     Swal.fire("チャットサーバーには接続できません。 しばらくしてからもう一度実行してください。");
                 }
@@ -710,9 +740,6 @@
             studentType = STUDENT_TYPE_DEMO;
             personId = personType.substring(11);
         }   
-        //console.log(id + "," + personId);
-
-        var retName = id;
         if (isTeacher) {
             retName = personList['teacher'].name;
         } else {
@@ -724,8 +751,8 @@
             }
         }
 
-        if (retName.length > 8) {
-            console.log(retName.length);
+        if (retName.length > 12) {
+            //console.log(retName.length);
             retName = retName.substring(0, 7) + "...";
         }
         return retName;
@@ -783,7 +810,7 @@
     })
 
     function onCarouselRefreshed(event) {
-        for (var index = 0; index < stream_list.length; index++) {
+        for (let index = 0; index < stream_list.length; index++) {
             var new_video = document.getElementById(stream_list[index].peerId);
 
             if (new_video == null)
@@ -792,6 +819,9 @@
             if (new_video.classList.contains('ol__student-video'))
                 continue;
 
+            if (stream_list[index].peerId == 'self') {
+                new_video.muted = true;
+            }
             new_video.srcObject = stream_list[index];
             new_video.playsInline = true;
             new_video.setAttribute('data-peer-id', stream_list[index].peerId);
@@ -803,6 +833,10 @@
 
 //---------------------------------------------------------------
     $('#btn_mic').on('click', function(e){
+        if (HOST_TYPE == HOST_TYPE_STUDENT && STUDENT_TYPE == STUDENT_TYPE_TOUR) {
+            Swal.fire("見学生には権限がありません。"); return false;
+        }
+
         $(this).toggleClass('active');
         if ($(this).hasClass('active')) {
             document.getElementById(HOST_TYPE == HOST_TYPE_TEACHER ? 'js-host-stream':'self').srcObject.getAudioTracks().forEach(t=> t.enabled = true);
@@ -812,6 +846,10 @@
     });
 
     $('#btn_camera').on('click', function(e){
+        if (HOST_TYPE == HOST_TYPE_STUDENT && STUDENT_TYPE == STUDENT_TYPE_TOUR) {
+            Swal.fire("見学生には権限がありません。"); return false;
+        }
+
         $(this).toggleClass('active');
         if ($(this).hasClass('active')) {
             document.getElementById(HOST_TYPE == HOST_TYPE_TEACHER ? 'js-host-stream':'self').srcObject.getVideoTracks().forEach(t=> t.enabled = true);
@@ -821,11 +859,19 @@
     });
 
     $('#btn_translate').on('click', function(e){
+        if (HOST_TYPE == HOST_TYPE_STUDENT && STUDENT_TYPE == STUDENT_TYPE_TOUR) {
+            Swal.fire("見学生には権限がありません。"); return false;
+        }
+
         $(this).toggleClass('active');
         is_allow_trans = $(this).hasClass('active');
     });
 
     $('#btn_speech').on('click', function(e){
+        if (HOST_TYPE == HOST_TYPE_STUDENT && STUDENT_TYPE == STUDENT_TYPE_TOUR) {
+            Swal.fire("見学生には権限がありません。"); return false;
+        }
+
         $(this).toggleClass('active');
 
         is_allow_recog = $(this).hasClass('active');
@@ -942,6 +988,16 @@
                 window.history.go(-1);
                 return;
             }
+
+            if (HOST_TYPE == HOST_TYPE_STUDENT && STUDENT_TYPE == STUDENT_TYPE_TOUR) {
+                if (leftTime <= 0) {
+                    Swal.fire('制限時間となりました。').then((result)=>{window.history.go(-1)});
+                } else {
+                    $('.ol__lefttime').addClass('active');
+                    startCountDown();
+                }
+            }
+
             await startMessagingSkyway();
             await startVideoMeetingSora();
             await startScreenSharingSora();
@@ -950,7 +1006,7 @@
 
     connectSoraForVideoMeeting();
     connectSoraForScreenSharing();
-
+    
     function manageVisibleParticipant(flag) {
         //$(".ol__student-list").toggleClass('active');
         if ( $(".ol__student-list").is( ":hidden" ) ) {
@@ -958,6 +1014,33 @@
         } else {
             $(".ol__student-list").slideUp( "slow" );
         }
+    }
+
+    function startCountDown() {
+        if (leftTime <= 0) {
+            if (sora_sendrecv_s != null) {
+                sora_sendrecv_s.disconnect();
+            }
+            if (sora_sendrecv_v != null) {
+                sora_sendrecv_v.disconnect();
+            }
+            if (dataPeer != null) {
+                dataPeer.destroy();
+            }
+            Swal.fire('有効時間が満了しました。').then((result)=>{window.history.go(-1)});
+            return false;
+        } 
+
+        var minute = 0;
+        var second = 0;
+        
+        minute = Math.floor(leftTime / 60);
+        second = leftTime % 60;
+
+        $(".ol__lefttime").html((minute<10?'0'+minute.toString():minute.toString()) + ":" + (second<10?'0'+second.toString():second.toString()));
+
+        leftTime--;
+        setTimeout(startCountDown, 1000);
     }
 </script>
 @endsection

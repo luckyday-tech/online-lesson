@@ -70,6 +70,7 @@ class HomeController extends Controller
             'selfName' => $user->name,
             'lessonTitle' => "Test Lesson",
             'personList' => $personList,
+            'leftTime' => 180,
         ]);
     }
 }

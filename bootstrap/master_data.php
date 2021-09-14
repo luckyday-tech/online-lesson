@@ -17,6 +17,8 @@ define('STUDENT_TYPE_SUBSCRIBE',        1);
 define('STUDENT_TYPE_TOUR',             2); //見学
 define('STUDENT_TYPE_DEMO',             3); //体験
 
+define('SORA_CHANNEL_PREFIX_SCREEN',    's_room');
+define('SORA_CHANNEL_PREFIX_VIDEO',     'v_room');
 
 /********************/
 $g_masterData = array(
